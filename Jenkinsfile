@@ -1,16 +1,13 @@
 pipeline{
     agent any
     tools {
-      maven 'maven3'
-    }
-    environment {
-      DOCKER_TAG = getVersion()
+      maven 'maven_3'
     }
     stages{
         stage('SCM'){
             steps{
                 git credentialsId: 'github', 
-                    url: 'https://github.com/javahometech/dockeransiblejenkins'
+                    url: 'https://github.com/mandal44/dockeransiblejenkins.git'
             }
         }
         
@@ -22,29 +19,27 @@ pipeline{
         
         stage('Docker Build'){
             steps{
-                sh "docker build . -t kammana/hariapp:${DOCKER_TAG} "
+                sh "docker build . -t mandal44/newrepo:1.0.0.1"
             }
         }
         
         stage('DockerHub Push'){
             steps{
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u kammana -p ${dockerHubPwd}"
-                }
                 
-                sh "docker push kammana/hariapp:${DOCKER_TAG} "
+                sh "docker login -u mandal44 -p Docker@44"
+                sh "docker push mandal44/newrepo:1.0.0.1 "
             }
         }
         
         stage('Docker Deploy'){
             steps{
-              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
+              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
+        
+                
             }
         }
+        
+        
     }
 }
 
-def getVersion(){
-    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
-    return commitHash
-}
