@@ -26,7 +26,7 @@ pipeline{
         stage('DockerHub Push'){
             steps{
                 
-                sh "docker login -u mandal44 -p Docker@44"
+                sh "docker login -u mandal44 -p Docker@45"
                 sh "docker push mandal44/newrepo:1.0.0.1 "
             }
         }
